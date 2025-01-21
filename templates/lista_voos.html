@@ -1,0 +1,22 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <h2>Lista Geral de Voos</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Número do Voo</th>
+                <th scope="col">Companhia Aérea</th>
+                <th scope="col">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1234</td>
+                <td>Prosperity Lines</td>
+                <td>Ativo</td>
+            </tr>
+            <!-- Adicionar mais voos dinamicamente -->
+        </tbody>
+    </table>
+{% endblock %}

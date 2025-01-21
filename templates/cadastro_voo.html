@@ -1,0 +1,200 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <h2>Cadastro de Voos</h2>
+    <form method="POST">
+        <div class="mb-3">
+            <label for="numero_voo" class="form-label">Número do Voo</label>
+            <input type="text" class="form-control" id="numero_voo" name="numero_voo" required>
+        </div>
+        <div class="mb-3">
+            <label for="companhia_aerea" class="form-label">Companhia Aérea</label>
+            <select class="form-select" id="companhia_aerea" name="companhia_aerea" required onchange="atualizarModelos()">
+                <option value="Outback">Outback</option>
+                <option value="Air Odysseia">Air Odysseia</option>
+                <option value="Prosperity Lines">Prosperity Lines</option>
+                <option value="Gluck Airlines">Gluck Airlines</option>
+                <option value="Fast Travel">Fast Travel</option>
+                <option value="Maasai Airways">Maasai Airways</option>
+                <option value="Orient">Orient</option>
+                <option value="Singapura Airlines">Singapura Airlines</option>
+                <option value="Alpha">Alpha</option>
+                <option value="Skyways">Skyways</option>
+                <option value="Ryoko Airlines">Ryoko Airlines</option>
+                <option value="AraSky">AraSky</option>
+                <option value="World Wide">World Wide</option>
+                <option value="Pop">Pop</option>
+                <option value="Jurassic Pax">Jurassic Pax</option>
+                <option value="Stellar Party">Stellar Party</option>
+                <option value="American Airways">American Airways</option>
+                <option value="Santa Claus">Santa Claus</option>
+                <option value="Evish Xmas">Evish Xmas</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="modelo_aviao" class="form-label">Modelo do Avião</label>
+            <select class="form-select" id="modelo_aviao" name="modelo_aviao" required>
+                <!-- Modelos serão atualizados dinamicamente -->
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="tipo_voo" class="form-label">Tipo de Voo</label>
+            <select class="form-select" id="tipo_voo" name="tipo_voo" required>
+                <option value="Regular">Regular</option>
+                <option value="Charter">Charter</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="horario_voo" class="form-label">Horário do Voo</label>
+            <select class="form-select" id="horario_voo" name="horario_voo" required>
+                <option value="EAM">EAM</option>
+                <option value="AM">AM</option>
+                <option value="AN">AN</option>
+                <option value="PM">PM</option>
+                <option value="ALL">ALL</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="qtd_passageiros" class="form-label">Quantidade de Passageiros</label>
+            <input type="number" class="form-control" id="qtd_passageiros" name="qtd_passageiros" readonly>
+        </div>
+        <div class="mb-3">
+            <label for="qtd_voos" class="form-label">Quantidade de Voos</label>
+            <input type="number" class="form-control" id="qtd_voos" name="qtd_voos" required>
+        </div>
+        <div class="mb-3">
+            <label for="nota_obj" class="form-label">Nota de Objetivos</label>
+            <select class="form-select" id="nota_obj" name="nota_obj" required>
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+                <option value="E">E</option>
+                <option value="F">F</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="nota_pontualidade" class="form-label">Nota de Pontualidade</label>
+            <select class="form-select" id="nota_pontualidade" name="nota_pontualidade" required>
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+                <option value="E">E</option>
+                <option value="F">F</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="nota_servicos" class="form-label">Nota de Serviços</label>
+            <select class="form-select" id="nota_servicos" name="nota_servicos" required>
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+                <option value="E">E</option>
+                <option value="F">F</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="nota_patio" class="form-label">Nota de Pátio</label>
+            <select class="form-select" id="nota_patio" name="nota_patio" required>
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+                <option value="E">E</option>
+                <option value="F">F</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Cadastrar</button>
+    </form>
+
+    <script>
+        // Definindo os modelos de aeronave para cada companhia
+        const modelosPorCompanhia = {
+            "Outback": ["BAE146", "Q400", "Fokker F100"],
+            "Air Odysseia": ["Q400", "S340"],
+            "Prosperity Lines": ["ERJ135", "CRJ-700"],
+            "Gluck Airlines": ["CRJ-700", "ERJ135", "BAE146"],
+            "Fast Travel": ["ATR42-600", "Q400"],
+            "Maasai Airways": ["E190E2", "737-700", "787-8"],
+            "Orient": ["A320Neo", "A220-300", "A318"],
+            "Singapura Airlines": ["777-300", "787-10", "A350-900"],
+            "Alpha": ["777-300", "757-300", "MD-11"],
+            "Skyways": ["A220-300", "737-300"],
+            "Ryoko Airlines": ["E190E2", "CRJ1000", "A220-300", "A318"],
+            "AraSky": ["E190E2", "A320Neo", "737-700"],
+            "World Wide": ["A320Neo"],
+            "Pop": ["Q400", "BAE146", "ERJ135"],
+            "Jurassic Pax": ["A320Neo", "E190E2", "A318"],
+            "Stellar Party": ["727-200", "A350-900", "Concorde"],
+            "American Airways": ["ERJ175", "CRJ-700", "A321Neo", "787-8", "737-MAX8"],
+            "Santa Claus": ["A220-300", "A318", "727-200", "737-700"],
+            "Evish Xmas": ["D0328", "A320Neo", "DC3", "ConcairCV240", "ATR72-600", "A321Neo", "727-200"]
+        };
+
+        // Capacidades das aeronaves
+        const capacidadesPorModelo = {
+            "BAE146": 90,
+            "Q400": 60,
+            "Fokker F100": 100,
+            "S340": 36,
+            "ERJ135": 48,
+            "CRJ-700": 70,
+            "CRJ1000": 100,
+            "ATR42-600": 55,
+            "E190E2": 132,
+            "A320Neo": 190,
+            "A321Neo": 220,
+            "A220-300": 123,
+            "A318": 132,
+            "A350-900": 440,
+            "MD-11": 298,
+            "737-300": 210,
+            "727-200": 210,
+            "757-300": 295,
+            "787-10": 325,
+            "777-300": 388,
+            "737-700": 210,
+            "737-MAX8": 210,
+            "787-8": 242,
+            "Concorde": 128,
+            "D0328": 30,
+            "DC3": 32,
+            "ConcairCV240": 50,
+            "ATR72-600": 78
+        };
+
+        // Função para atualizar o modelo de avião conforme a companhia aérea selecionada
+        function atualizarModelos() {
+            const companhiaSelecionada = document.getElementById('companhia_aerea').value;
+            const modeloSelect = document.getElementById('modelo_aviao');
+            modeloSelect.innerHTML = ''; // Limpar opções atuais
+
+            const modelos = modelosPorCompanhia[companhiaSelecionada] || [];
+            
+            // Adiciona as opções de modelos para a companhia selecionada
+            modelos.forEach(modelo => {
+                const option = document.createElement('option');
+                option.value = modelo;
+                option.text = modelo;
+                modeloSelect.appendChild(option);
+            });
+
+            // Atualizar automaticamente a quantidade de passageiros com base no modelo do avião
+            atualizarPassageiros();
+        }
+
+        // Função para atualizar a quantidade de passageiros
+        function atualizarPassageiros() {
+            const modeloAviao = document.getElementById('modelo_aviao').value;
+            const qtdPassageiros = document.getElementById('qtd_passageiros');
+
+            // Definindo a quantidade de passageiros com base no modelo selecionado
+            qtdPassageiros.value = capacidadesPorModelo[modeloAviao] || 150; //valor padrão 
+        }
+
+        // Chamar a função ao carregar a página para garantir que os modelos sejam preenchidos corretamente
+        window.onload = atualizarModelos;
+    </script>
+{% endblock %}
