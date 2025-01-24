@@ -2,22 +2,135 @@
 
 {% block content %}
 <h1>Dashboard</h1>
-<div class="row">
-    <div class="col-md-6">
+
+<!-- Cards com Informações Gerais -->
+<div class="row mb-4">
+    <div class="col-md-3">
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Total de Voos</h5>
-                <p class="card-text">100</p>
+                <p class="card-text">{{ total_voos }}</p>
             </div>
         </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-3">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Total de Companhias</h5>
-                <p class="card-text">10</p>
+                <h5 class="card-title">Total de Passageiros</h5>
+                <p class="card-text">{{ total_passageiros }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Média Nota Objetivo</h5>
+                <p class="card-text">{{ "%.2f"|format(media_obj) }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Média Nota Pontualidade</h5>
+                <p class="card-text">{{ "%.2f"|format(media_pontualidade) }}</p>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Gráficos -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Passageiros por Companhia Aérea</h5>
+                <canvas id="graficoPassageiros"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Médias das Notas</h5>
+                <canvas id="graficoNotas"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cards por Empresa -->
+<h2>Informações por Companhia Aérea</h2>
+<div class="row">
+    {% for companhia in companhias %}
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ companhia.nome }}</h5>
+                <p class="card-text">
+                    <strong>Total de Voos:</strong> {{ companhia.voos|length }}<br>
+                    <strong>Total de Passageiros:</strong> {{ sum(voo.qtd_passageiros for voo in companhia.voos) }}<br>
+                    <strong>Modelos de Aeronaves:</strong>
+                    <ul>
+                        {% for modelo in companhia.modelos %}
+                            <li>{{ modelo.nome }} ({{ modelo.capacidade }} passageiros)</li>
+                        {% endfor %}
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Scripts para os Gráficos -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Gráfico de Passageiros por Companhia
+    const ctxPassageiros = document.getElementById('graficoPassageiros').getContext('2d');
+    new Chart(ctxPassageiros, {
+        type: 'bar',
+        data: {
+            labels: {{ nomes_companhias | tojson }},
+            datasets: [{
+                label: 'Passageiros',
+                data: {{ passageiros_por_companhia | tojson }},
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Gráfico de Médias das Notas
+    const ctxNotas = document.getElementById('graficoNotas').getContext('2d');
+    new Chart(ctxNotas, {
+        type: 'bar',
+        data: {
+            labels: {{ labels_notas | tojson }},
+            datasets: [{
+                label: 'Médias',
+                data: {{ medias_notas | tojson }},
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 10
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}

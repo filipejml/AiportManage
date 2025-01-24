@@ -25,6 +25,12 @@ def cadastro_voos():
 def cadastrar_voo():
     data = request.form
 
+    # Converte campos vazios para None
+    nota_servicos = int(data['nota_servicos']) if data['nota_servicos'] else None
+    nota_patio = int(data['nota_patio']) if data['nota_patio'] else None
+    nota_obj = int(data['nota_obj']) if data['nota_obj'] else None
+    nota_pontualidade = int(data['nota_pontualidade']) if data['nota_pontualidade'] else None
+    
     # Cria um novo voo com os dados do formulário
     novo_voo = Voo(
         numero_voo=data['numero_voo'],
@@ -35,10 +41,10 @@ def cadastrar_voo():
         qtd_voos=data['qtd_voos'],
         horario_voo=data['horario_voo'],
         qtd_passageiros=data['qtd_passageiros'],
-        nota_obj=data.get('nota_obj'),  # Pode ser None se não for preenchido
-        nota_pontualidade=data.get('nota_pontualidade'),
-        nota_servicos=data.get('nota_servicos'),
-        nota_patio=data.get('nota_patio'),
+        nota_obj=nota_obj,
+        nota_pontualidade=nota_pontualidade,
+        nota_servicos=nota_servicos,
+        nota_patio=nota_patio,
         data_insercao=datetime.utcnow()  # Data de inserção automática
     )
 
@@ -46,7 +52,7 @@ def cadastrar_voo():
     db.session.add(novo_voo)
     db.session.commit()
 
-    return "Voo cadastrado com sucesso!"
+    return redirect(url_for('lista_voos'))
 
 # Rota para obter modelos de aeronave com base na companhia selecionada
 @app.route('/modelos_aeronave/<int:companhia_id>')
@@ -88,7 +94,45 @@ def companhias():
 # Rota para o dashboard
 @app.route('/dashboard')
 def dashboard():
-    return render_template('dashboard.html')
+    # Total de voos registrados
+    total_voos = Voo.query.count()
+
+    # Quantidade total de passageiros
+    total_passageiros = db.session.query(db.func.sum(Voo.qtd_passageiros)).scalar() or 0
+
+    # Médias das notas
+    voos = Voo.query.all()
+    total_voos_com_notas = len([voo for voo in voos if voo.nota_obj is not None])
+
+    media_obj = sum(voo.nota_obj for voo in voos if voo.nota_obj is not None) / total_voos_com_notas if total_voos_com_notas > 0 else 0
+    media_pontualidade = sum(voo.nota_pontualidade for voo in voos if voo.nota_pontualidade is not None) / total_voos_com_notas if total_voos_com_notas > 0 else 0
+    media_servicos = sum(voo.nota_servicos for voo in voos if voo.nota_servicos is not None) / total_voos_com_notas if total_voos_com_notas > 0 else 0
+    media_patio = sum(voo.nota_patio for voo in voos if voo.nota_patio is not None) / total_voos_com_notas if total_voos_com_notas > 0 else 0
+
+    # Dados para o gráfico de passageiros por companhia
+    companhias = Companhia.query.all()
+    passageiros_por_companhia = [
+        sum(voo.qtd_passageiros for voo in companhia.voos)
+        for companhia in companhias
+    ]
+    nomes_companhias = [companhia.nome for companhia in companhias]
+
+    # Dados para o gráfico de médias das notas
+    medias_notas = [media_obj, media_pontualidade, media_servicos, media_patio]
+    labels_notas = ["Objetivo", "Pontualidade", "Serviços", "Pátio"]
+
+    return render_template('dashboard.html', 
+                           total_voos=total_voos, 
+                           total_passageiros=total_passageiros, 
+                           media_obj=media_obj, 
+                           media_pontualidade=media_pontualidade, 
+                           media_servicos=media_servicos, 
+                           media_patio=media_patio, 
+                           nomes_companhias=nomes_companhias, 
+                           passageiros_por_companhia=passageiros_por_companhia, 
+                           medias_notas=medias_notas, 
+                           labels_notas=labels_notas, 
+                           companhias=companhias)
 
 @app.route('/adicionar_voo', methods=['GET', 'POST'])
 def adicionar_voo():
