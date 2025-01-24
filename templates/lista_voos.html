@@ -1,22 +1,161 @@
-{% extends 'layout.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-    <h2>Lista Geral de Voos</h2>
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">Número do Voo</th>
-                <th scope="col">Companhia Aérea</th>
-                <th scope="col">Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>1234</td>
-                <td>Prosperity Lines</td>
-                <td>Ativo</td>
-            </tr>
-            <!-- Adicionar mais voos dinamicamente -->
-        </tbody>
-    </table>
+<h1>Lista Geral de Voos</h1>
+
+<!-- Formulário de Filtro por Companhia Aérea -->
+<form method="GET" action="{{ url_for('lista_voos') }}" class="mb-4">
+    <div class="form-group">
+        <label for="companhia">Filtrar por Companhia Aérea:</label>
+        <select class="form-control" id="companhia" name="companhia">
+            <option value="">Todas as Companhias</option>
+            {% for companhia in companhias %}
+                <option value="{{ companhia.id }}" {% if companhia.id == companhia_filtro %}selected{% endif %}>
+                    {{ companhia.nome }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+    <a href="{{ url_for('lista_voos') }}" class="btn btn-secondary">Limpar Filtro</a>
+</form>
+
+<!-- Tabela de Informações Gerais -->
+<h2>Informações Gerais</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Número do Voo</th>
+            <th>Companhia Aérea</th>
+            <th>Modelo de Aeronave</th>
+            <th>Tipo de Voo</th>
+            <th>Tipo de Aeronave</th>
+            <th>Quantidade de Voos</th>
+            <th>Horário do Voo</th>
+            <th>Quantidade de Passageiros</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for voo in voos.items %}
+        <tr>
+            <td>{{ voo.numero_voo }}</td>
+            <td>{{ voo.companhia.nome }}</td>
+            <td>{{ voo.modelo_aeronave.nome }}</td>
+            <td>{{ voo.tipo_voo }}</td>
+            <td>{{ voo.tipo_aeronave }}</td>
+            <td>{{ voo.qtd_voos }}</td>
+            <td>{{ voo.horario_voo }}</td>
+            <td>{{ voo.qtd_passageiros }}</td>
+            <td>
+                <a href="{{ url_for('editar_voo', id=voo.id) }}" class="btn btn-warning">Editar</a>
+                <form action="{{ url_for('excluir_voo', id=voo.id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-danger">Excluir</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Navegação de Paginação para Informações Gerais -->
+<nav aria-label="Navegação de páginas">
+    <ul class="pagination">
+        {% if voos.has_prev %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('lista_voos', pagina=voos.prev_num, companhia=companhia_filtro) }}">Anterior</a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">Anterior</span>
+            </li>
+        {% endif %}
+
+        {% for num in voos.iter_pages() %}
+            {% if num %}
+                <li class="page-item {% if num == voos.page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('lista_voos', pagina=num, companhia=companhia_filtro) }}">{{ num }}</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+            {% endif %}
+        {% endfor %}
+
+        {% if voos.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('lista_voos', pagina=voos.next_num, companhia=companhia_filtro) }}">Próxima</a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">Próxima</span>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+
+<!-- Tabela de Notas -->
+<h2>Notas</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Número do Voo</th>
+            <th>Nota Objetivo</th>
+            <th>Nota Pontualidade</th>
+            <th>Nota Serviços</th>
+            <th>Nota Pátio</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for voo in voos.items %}
+        <tr>
+            <td>{{ voo.numero_voo }}</td>
+            <td>{{ voo.nota_obj }}</td>
+            <td>{{ voo.nota_pontualidade }}</td>
+            <td>{{ voo.nota_servicos }}</td>
+            <td>{{ voo.nota_patio }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Navegação de Paginação para Notas -->
+<nav aria-label="Navegação de páginas">
+    <ul class="pagination">
+        {% if voos.has_prev %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('lista_voos', pagina=voos.prev_num, companhia=companhia_filtro) }}">Anterior</a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">Anterior</span>
+            </li>
+        {% endif %}
+
+        {% for num in voos.iter_pages() %}
+            {% if num %}
+                <li class="page-item {% if num == voos.page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('lista_voos', pagina=num, companhia=companhia_filtro) }}">{{ num }}</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+            {% endif %}
+        {% endfor %}
+
+        {% if voos.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('lista_voos', pagina=voos.next_num, companhia=companhia_filtro) }}">Próxima</a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">Próxima</span>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+
+<a href="{{ url_for('adicionar_voo') }}" class="btn btn-primary">Adicionar Voo</a>
 {% endblock %}

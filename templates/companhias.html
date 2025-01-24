@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Companhias Aéreas</h1>
+
+<ul>
+    {% for companhia in companhias %}
+        <li>
+            <a href="{{ url_for('detalhes_companhia', id=companhia.id) }}">{{ companhia.nome }}</a>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

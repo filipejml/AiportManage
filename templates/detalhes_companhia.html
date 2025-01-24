@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ companhia.nome }}</h1>
+
+<h2>Médias das Notas</h2>
+<ul>
+    <li>Nota Objetivo: {{ "%.2f"|format(media_obj) }}</li>
+    <li>Nota Pontualidade: {{ "%.2f"|format(media_pontualidade) }}</li>
+    <li>Nota Serviços: {{ "%.2f"|format(media_servicos) }}</li>
+    <li>Nota Pátio: {{ "%.2f"|format(media_patio) }}</li>
+    <li>Média de Passageiros por Voo: {{ "%.2f"|format(media_passageiros) }}</li>
+</ul>
+
+<h2>Modelos de Aeronaves</h2>
+<ul>
+    {% for modelo in modelos %}
+        <li>{{ modelo.nome }} (Capacidade: {{ modelo.capacidade }} passageiros)</li>
+    {% endfor %}
+</ul>
+
+<a href="{{ url_for('lista_companhias') }}" class="btn btn-secondary">Voltar</a>
+{% endblock %}

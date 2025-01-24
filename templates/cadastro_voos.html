@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Cadastro de Voos</h1>
+<form method="POST" action="{{ url_for('cadastrar_voo') }}">
+    <div class="form-group">
+        <label for="numero_voo">Número do Voo</label>
+        <input type="text" class="form-control" id="numero_voo" name="numero_voo" required>
+    </div>
+    <div class="form-group">
+        <label for="companhia">Companhia Aérea</label>
+        <select class="form-control" id="companhia" name="companhia" required>
+            <option value="">Selecione uma companhia</option>
+            {% for companhia in companhias %}
+                <option value="{{ companhia.id }}">{{ companhia.nome }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="modelo_aeronave">Modelo de Aeronave</label>
+        <select class="form-control" id="modelo_aeronave" name="modelo_aeronave" required>
+            <option value="">Selecione um modelo</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="tipo_voo">Tipo de Voo</label>
+        <select class="form-control" id="tipo_voo" name="tipo_voo" required>
+            <option value="Regular">Regular</option>
+            <option value="Charter">Charter</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="tipo_aeronave">Tipo de Aeronave</label>
+        <select class="form-control" id="tipo_aeronave" name="tipo_aeronave" required>
+            <option value="PC">PC</option>
+            <option value="MC">MC</option>
+            <option value="LC">LC</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="qtd_voos">Quantidade de Voos</label>
+        <input type="number" class="form-control" id="qtd_voos" name="qtd_voos" required>
+    </div>
+    <div class="form-group">
+        <label for="horario_voo">Horário do Voo</label>
+        <select class="form-control" id="horario_voo" name="horario_voo" required>
+            <option value="EAM">EAM</option>
+            <option value="AM">AM</option>
+            <option value="AN">AN</option>
+            <option value="PM">PM</option>
+            <option value="ALL">ALL</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="qtd_passageiros">Quantidade de Passageiros</label>
+        <input type="number" class="form-control" id="qtd_passageiros" name="qtd_passageiros" readonly>
+    </div>
+    <div class="form-group">
+        <label for="nota_obj">Nota Objetivo</label>
+        <select class="form-control" id="nota_obj" name="nota_obj">
+            <option value="">Selecione</option>
+            <option value="10">A</option>
+            <option value="9">B</option>
+            <option value="8">C</option>
+            <option value="6">D</option>
+            <option value="4">E</option>
+            <option value="2">F</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="nota_pontualidade">Nota Pontualidade</label>
+        <select class="form-control" id="nota_pontualidade" name="nota_pontualidade">
+            <option value="">Selecione</option>
+            <option value="10">A</option>
+            <option value="9">B</option>
+            <option value="8">C</option>
+            <option value="6">D</option>
+            <option value="4">E</option>
+            <option value="2">F</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="nota_servicos">Nota Serviços</label>
+        <select class="form-control" id="nota_servicos" name="nota_servicos">
+            <option value="">Selecione</option>
+            <option value="10">A</option>
+            <option value="9">B</option>
+            <option value="8">C</option>
+            <option value="6">D</option>
+            <option value="4">E</option>
+            <option value="2">F</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="nota_patio">Nota Pátio</label>
+        <select class="form-control" id="nota_patio" name="nota_patio">
+            <option value="">Selecione</option>
+            <option value="10">A</option>
+            <option value="9">B</option>
+            <option value="8">C</option>
+            <option value="6">D</option>
+            <option value="4">E</option>
+            <option value="2">F</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Cadastrar Voo</button>
+</form>
+
+<script>
+    const companhiaSelect = document.getElementById('companhia');
+    const modeloAeronaveSelect = document.getElementById('modelo_aeronave');
+    const qtdPassageirosInput = document.getElementById('qtd_passageiros');
+
+    companhiaSelect.addEventListener('change', async () => {
+        const companhiaId = companhiaSelect.value;
+        const response = await fetch(`/modelos_aeronave/${companhiaId}`);
+        const modelos = await response.json();
+
+        modeloAeronaveSelect.innerHTML = '<option value="">Selecione um modelo</option>';
+        modelos.forEach(modelo => {
+            const option = document.createElement('option');
+            option.value = modelo.id;
+            option.textContent = modelo.nome;
+            modeloAeronaveSelect.appendChild(option);
+        });
+    });
+
+    modeloAeronaveSelect.addEventListener('change', async () => {
+        const modeloId = modeloAeronaveSelect.value;
+        const response = await fetch(`/capacidade_aeronave/${modeloId}`);
+        const capacidade = await response.json();
+        qtdPassageirosInput.value = capacidade;
+    });
+</script>
+{% endblock %}

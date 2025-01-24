@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Excluir Voo</h1>
+<p>Tem certeza de que deseja excluir o voo <strong>{{ voo.numero_voo }}</strong>?</p>
+<p>Esta ação não pode ser desfeita.</p>
+
+<form method="POST" action="{{ url_for('excluir_voo', id=voo.id) }}">
+    <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
+    <a href="{{ url_for('lista_voos') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Editar Voo</h1>
+<form method="POST" action="{{ url_for('editar_voo', id=voo.id) }}">
+    <div class="form-group">
+        <label for="numero_voo">Número do Voo</label>
+        <input type="text" class="form-control" id="numero_voo" name="numero_voo" value="{{ voo.numero_voo }}" required>
+    </div>
+    <div class="form-group">
+        <label for="companhia">Companhia Aérea</label>
+        <select class="form-control" id="companhia" name="companhia" required>
+            <option value="">Selecione uma companhia</option>
+            {% for companhia in companhias %}
+                <option value="{{ companhia.id }}" {% if companhia.id == voo.companhia_id %}selected{% endif %}>{{ companhia.nome }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="modelo_aeronave">Modelo de Aeronave</label>
+        <select class="form-control" id="modelo_aeronave" name="modelo_aeronave" required>
+            <option value="">Selecione um modelo</option>
+            {% for modelo in voo.companhia.modelos %}
+                <option value="{{ modelo.id }}" {% if modelo.id == voo.modelo_aeronave_id %}selected{% endif %}>{{ modelo.nome }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="tipo_voo">Tipo de Voo</label>
+        <select class="form-control" id="tipo_voo" name="tipo_voo" required>
+            <option value="Regular" {% if voo.tipo_voo == 'Regular' %}selected{% endif %}>Regular</option>
+            <option value="Charter" {% if voo.tipo_voo == 'Charter' %}selected{% endif %}>Charter</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="tipo_aeronave">Tipo de Aeronave</label>
+        <select class="form-control" id="tipo_aeronave" name="tipo_aeronave" required>
+            <option value="PC" {% if voo.tipo_aeronave == 'PC' %}selected{% endif %}>PC</option>
+            <option value="MC" {% if voo.tipo_aeronave == 'MC' %}selected{% endif %}>MC</option>
+            <option value="LC" {% if voo.tipo_aeronave == 'LC' %}selected{% endif %}>LC</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="qtd_voos">Quantidade de Voos</label>
+        <input type="number" class="form-control" id="qtd_voos" name="qtd_voos" value="{{ voo.qtd_voos }}" required>
+    </div>
+    <div class="form-group">
+        <label for="horario_voo">Horário do Voo</label>
+        <select class="form-control" id="horario_voo" name="horario_voo" required>
+            <option value="EAM" {% if voo.horario_voo == 'EAM' %}selected{% endif %}>EAM</option>
+            <option value="AM" {% if voo.horario_voo == 'AM' %}selected{% endif %}>AM</option>
+            <option value="AN" {% if voo.horario_voo == 'AN' %}selected{% endif %}>AN</option>
+            <option value="PM" {% if voo.horario_voo == 'PM' %}selected{% endif %}>PM</option>
+            <option value="ALL" {% if voo.horario_voo == 'ALL' %}selected{% endif %}>ALL</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="qtd_passageiros">Quantidade de Passageiros</label>
+        <input type="number" class="form-control" id="qtd_passageiros" name="qtd_passageiros" value="{{ voo.qtd_passageiros }}" readonly>
+    </div>
+    <div class="form-group">
+        <label for="nota_obj">Nota Objetivo</label>
+        <select class="form-control" id="nota_obj" name="nota_obj">
+            <option value="">Selecione</option>
+            <option value="10" {% if voo.nota_obj == 10 %}selected{% endif %}>A</option>
+            <option value="9" {% if voo.nota_obj == 9 %}selected{% endif %}>B</option>
+            <option value="8" {% if voo.nota_obj == 8 %}selected{% endif %}>C</option>
+            <option value="6" {% if voo.nota_obj == 6 %}selected{% endif %}>D</option>
+            <option value="4" {% if voo.nota_obj == 4 %}selected{% endif %}>E</option>
+            <option value="2" {% if voo.nota_obj == 2 %}selected{% endif %}>F</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="nota_pontualidade">Nota Pontualidade</label>
+        <select class="form-control" id="nota_pontualidade" name="nota_pontualidade">
+            <option value="">Selecione</option>
+            <option value="10" {% if voo.nota_pontualidade == 10 %}selected{% endif %}>A</option>
+            <option value="9" {% if voo.nota_pontualidade == 9 %}selected{% endif %}>B</option>
+            <option value="8" {% if voo.nota_pontualidade == 8 %}selected{% endif %}>C</option>
+            <option value="6" {% if voo.nota_pontualidade == 6 %}selected{% endif %}>D</option>
+            <option value="4" {% if voo.nota_pontualidade == 4 %}selected{% endif %}>E</option>
+            <option value="2" {% if voo.nota_pontualidade == 2 %}selected{% endif %}>F</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="nota_servicos">Nota Serviços</label>
+        <select class="form-control" id="nota_servicos" name="nota_servicos">
+            <option value="">Selecione</option>
+            <option value="10" {% if voo.nota_servicos == 10 %}selected{% endif %}>A</option>
+            <option value="9" {% if voo.nota_servicos == 9 %}selected{% endif %}>B</option>
+            <option value="8" {% if voo.nota_servicos == 8 %}selected{% endif %}>C</option>
+            <option value="6" {% if voo.nota_servicos == 6 %}selected{% endif %}>D</option>
+            <option value="4" {% if voo.nota_servicos == 4 %}selected{% endif %}>E</option>
+            <option value="2" {% if voo.nota_servicos == 2 %}selected{% endif %}>F</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="nota_patio">Nota Pátio</label>
+        <select class="form-control" id="nota_patio" name="nota_patio">
+            <option value="">Selecione</option>
+            <option value="10" {% if voo.nota_patio == 10 %}selected{% endif %}>A</option>
+            <option value="9" {% if voo.nota_patio == 9 %}selected{% endif %}>B</option>
+            <option value="8" {% if voo.nota_patio == 8 %}selected{% endif %}>C</option>
+            <option value="6" {% if voo.nota_patio == 6 %}selected{% endif %}>D</option>
+            <option value="4" {% if voo.nota_patio == 4 %}selected{% endif %}>E</option>
+            <option value="2" {% if voo.nota_patio == 2 %}selected{% endif %}>F</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+</form>
+
+<script>
+    const companhiaSelect = document.getElementById('companhia');
+    const modeloAeronaveSelect = document.getElementById('modelo_aeronave');
+    const qtdPassageirosInput = document.getElementById('qtd_passageiros');
+
+    companhiaSelect.addEventListener('change', async () => {
+        const companhiaId = companhiaSelect.value;
+        const response = await fetch(`/modelos_aeronave/${companhiaId}`);
+        const modelos = await response.json();
+
+        modeloAeronaveSelect.innerHTML = '<option value="">Selecione um modelo</option>';
+        modelos.forEach(modelo => {
+            const option = document.createElement('option');
+            option.value = modelo.id;
+            option.textContent = modelo.nome;
+            modeloAeronaveSelect.appendChild(option);
+        });
+    });
+
+    modeloAeronaveSelect.addEventListener('change', async () => {
+        const modeloId = modeloAeronaveSelect.value;
+        const response = await fetch(`/capacidade_aeronave/${modeloId}`);
+        const capacidade = await response.json();
+        qtdPassageirosInput.value = capacidade;
+    });
+</script>
+{% endblock %}
