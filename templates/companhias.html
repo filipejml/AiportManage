@@ -1,13 +1,42 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Companhias Aéreas</h1>
+<h1 class="mb-4">Companhias Aéreas</h1>
 
-<ul>
+<div class="row">
     {% for companhia in companhias %}
-        <li>
-            <a href="{{ url_for('detalhes_companhia', id=companhia.id) }}">{{ companhia.nome }}</a>
-        </li>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 bg-primary text-white"> <!-- Card colorido -->
+            <div class="card-body">
+                <h5 class="card-title">{{ companhia.nome }}</h5>
+
+                <h6 class="card-subtitle mb-2 text-white-50">Médias das Notas</h6>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item bg-primary text-white border-light">
+                        Nota Objetivo: {{ "%.2f"|format(companhia.media_obj) }}
+                    </li>
+                    <li class="list-group-item bg-primary text-white border-light">
+                        Nota Pontualidade: {{ "%.2f"|format(companhia.media_pontualidade) }}
+                    </li>
+                    <li class="list-group-item bg-primary text-white border-light">
+                        Nota Serviços: {{ "%.2f"|format(companhia.media_servicos) }}
+                    </li>
+                    <li class="list-group-item bg-primary text-white border-light">
+                        Nota Pátio: {{ "%.2f"|format(companhia.media_patio) }}
+                    </li>
+                </ul>
+
+                <h6 class="card-subtitle mt-3 mb-2 text-white-50">Modelos de Aeronaves</h6>
+                <ul class="list-group list-group-flush">
+                    {% for modelo in companhia.modelos %}
+                    <li class="list-group-item bg-primary text-white border-light">
+                        {{ modelo.nome }} (Capacidade: {{ modelo.capacidade }} passageiros)
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
     {% endfor %}
-</ul>
+</div>
 {% endblock %}

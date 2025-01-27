@@ -59,6 +59,51 @@
     </div>
 </div>
 
+<!-- Tabela de Voos por Tipo de Aeronave -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Total de Voos por Tipo de Aeronave</h5>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Tipo de Aeronave</th>
+                            <th>Total de Voos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>PC</td>
+                            <td>{{ total_voos_pc }}</td>
+                        </tr>
+                        <tr>
+                            <td>MC</td>
+                            <td>{{ total_voos_mc }}</td>
+                        </tr>
+                        <tr>
+                            <td>LC</td>
+                            <td>{{ total_voos_lc }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráfico de Voos por Modelo de Aeronave -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Total de Voos por Modelo de Aeronave</h5>
+                <canvas id="graficoVoosPorModelo"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Cards por Empresa -->
 <h2>Informações por Companhia Aérea</h2>
 <div class="row">
@@ -68,8 +113,8 @@
             <div class="card-body">
                 <h5 class="card-title">{{ companhia.nome }}</h5>
                 <p class="card-text">
-                    <strong>Total de Voos:</strong> {{ companhia.voos|length }}<br>
-                    <strong>Total de Passageiros:</strong> {{ sum(voo.qtd_passageiros for voo in companhia.voos) }}<br>
+                    <strong>Total de Voos:</strong> {{ companhia.total_voos }}<br>
+                    <strong>Total de Passageiros:</strong> {{ companhia.total_passageiros }}<br>
                     <strong>Modelos de Aeronaves:</strong>
                     <ul>
                         {% for modelo in companhia.modelos %}
@@ -128,6 +173,29 @@
                 y: {
                     beginAtZero: true,
                     max: 10
+                }
+            }
+        }
+    });
+
+    // Gráfico de Voos por Modelo de Aeronave
+    const ctxVoosPorModelo = document.getElementById('graficoVoosPorModelo').getContext('2d');
+    new Chart(ctxVoosPorModelo, {
+        type: 'bar',
+        data: {
+            labels: {{ modelos_aeronave | tojson }},
+            datasets: [{
+                label: 'Total de Voos',
+                data: {{ total_voos_por_modelo | tojson }},
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
             }
         }

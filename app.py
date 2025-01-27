@@ -89,13 +89,23 @@ def lista_voos():
 @app.route('/companhias')
 def companhias():
     companhias = Companhia.query.all()
+
+    for companhia in companhias:
+        voos = companhia.voos
+        total_voos = len(voos)
+
+        companhia.media_obj = sum(voo.nota_obj for voo in voos if voo.nota_obj is not None) / total_voos if total_voos > 0 else 0
+        companhia.media_pontualidade = sum(voo.nota_pontualidade for voo in voos if voo.nota_pontualidade is not None) / total_voos if total_voos > 0 else 0
+        companhia.media_servicos = sum(voo.nota_servicos for voo in voos if voo.nota_servicos is not None) / total_voos if total_voos > 0 else 0
+        companhia.media_patio = sum(voo.nota_patio for voo in voos if voo.nota_patio is not None) / total_voos if total_voos > 0 else 0
+
     return render_template('companhias.html', companhias=companhias)
 
 # Rota para o dashboard
 @app.route('/dashboard')
 def dashboard():
-    # Total de voos registrados
-    total_voos = Voo.query.count()
+    # Total de voos registrados (soma da quantidade de voos)
+    total_voos = db.session.query(db.func.sum(Voo.qtd_voos)).scalar() or 0
 
     # Quantidade total de passageiros
     total_passageiros = db.session.query(db.func.sum(Voo.qtd_passageiros)).scalar() or 0
@@ -121,6 +131,29 @@ def dashboard():
     medias_notas = [media_obj, media_pontualidade, media_servicos, media_patio]
     labels_notas = ["Objetivo", "Pontualidade", "Serviços", "Pátio"]
 
+    # Adiciona totais como atributos dinâmicos aos objetos Companhia
+    for companhia in companhias:
+        companhia.total_voos = sum(voo.qtd_voos for voo in companhia.voos)
+        companhia.total_passageiros = sum(voo.qtd_passageiros for voo in companhia.voos)
+
+    # Total de voos por tipo de aeronave
+    total_voos_pc = db.session.query(db.func.sum(Voo.qtd_voos)).filter(Voo.tipo_aeronave == 'PC').scalar() or 0
+    total_voos_mc = db.session.query(db.func.sum(Voo.qtd_voos)).filter(Voo.tipo_aeronave == 'MC').scalar() or 0
+    total_voos_lc = db.session.query(db.func.sum(Voo.qtd_voos)).filter(Voo.tipo_aeronave == 'LC').scalar() or 0
+
+    # Total de voos por modelo de aeronave
+    voos_por_modelo = db.session.query(
+        ModeloAeronave.nome,
+        db.func.sum(Voo.qtd_voos).label('total_voos')
+    ).join(Voo, Voo.modelo_aeronave_id == ModeloAeronave.id) \
+     .group_by(ModeloAeronave.nome) \
+     .all()
+
+    # Extrai os nomes dos modelos e os totais de voos
+    modelos_aeronave = [resultado.nome for resultado in voos_por_modelo]
+    total_voos_por_modelo = [resultado.total_voos for resultado in voos_por_modelo]
+
+    # Passa os dados para o template
     return render_template('dashboard.html', 
                            total_voos=total_voos, 
                            total_passageiros=total_passageiros, 
@@ -132,8 +165,14 @@ def dashboard():
                            passageiros_por_companhia=passageiros_por_companhia, 
                            medias_notas=medias_notas, 
                            labels_notas=labels_notas, 
-                           companhias=companhias)
+                           companhias=companhias,
+                           total_voos_pc=total_voos_pc,
+                           total_voos_mc=total_voos_mc,
+                           total_voos_lc=total_voos_lc,
+                           modelos_aeronave=modelos_aeronave,
+                           total_voos_por_modelo=total_voos_por_modelo)
 
+    
 @app.route('/adicionar_voo', methods=['GET', 'POST'])
 def adicionar_voo():
     if request.method == 'POST':

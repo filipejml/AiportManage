@@ -1,161 +1,141 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Lista Geral de Voos</h1>
+<div class="container">
+    <h1 class="my-4">Lista Geral de Voos</h1>
 
-<!-- Formulário de Filtro por Companhia Aérea -->
-<form method="GET" action="{{ url_for('lista_voos') }}" class="mb-4">
-    <div class="form-group">
-        <label for="companhia">Filtrar por Companhia Aérea:</label>
-        <select class="form-control" id="companhia" name="companhia">
-            <option value="">Todas as Companhias</option>
-            {% for companhia in companhias %}
-                <option value="{{ companhia.id }}" {% if companhia.id == companhia_filtro %}selected{% endif %}>
-                    {{ companhia.nome }}
-                </option>
-            {% endfor %}
-        </select>
+    <!-- Filtro por Companhia Aérea -->
+    <form method="GET" action="{{ url_for('lista_voos') }}" class="mb-4">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-6">
+                <!-- <label for="companhia" class="form-label">Filtrar por Companhia Aérea:</label> -->
+                <select class="form-select" id="companhia" name="companhia">
+                    <option value="">Todas as Companhias</option>
+                    {% for companhia in companhias %}
+                        <option value="{{ companhia.id }}" {% if companhia.id == companhia_filtro %}selected{% endif %}>
+                            {{ companhia.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-filter"></i> Filtrar
+                </button>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <a href="{{ url_for('lista_voos') }}" class="btn btn-secondary w-100">
+                    <i class="bi bi-x-circle"></i> Limpar Filtro
+                </a>
+            </div>
+        </div>
+    </form>
+
+    <!-- Tabela Única com Informações Gerais e Notas -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            Informações Gerais e Notas dos Voos
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Número do Voo</th>
+                            <th>Companhia Aérea</th>
+                            <th>Modelo de Aeronave</th>
+                            <th>Tipo de Voo</th>
+                            <th>Tipo de Aeronave</th>
+                            <th>Quantidade de Voos</th>
+                            <th>Horário do Voo</th>
+                            <th>Quantidade de Passageiros</th>
+                            <th>Nota Objetivo</th>
+                            <th>Nota Pontualidade</th>
+                            <th>Nota Serviços</th>
+                            <th>Nota Pátio</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for voo in voos.items %}
+                        <tr>
+                            <td>{{ voo.numero_voo }}</td>
+                            <td>{{ voo.companhia.nome }}</td>
+                            <td>{{ voo.modelo_aeronave.nome }}</td>
+                            <td>{{ voo.tipo_voo }}</td>
+                            <td>{{ voo.tipo_aeronave }}</td>
+                            <td>{{ voo.qtd_voos }}</td>
+                            <td>{{ voo.horario_voo }}</td>
+                            <td>{{ voo.qtd_passageiros }}</td>
+                            <td>{{ voo.nota_obj if voo.nota_obj is not none else "-" }}</td>
+                            <td>{{ voo.nota_pontualidade if voo.nota_pontualidade is not none else "-" }}</td>
+                            <td>{{ voo.nota_servicos if voo.nota_servicos is not none else "-" }}</td>
+                            <td>{{ voo.nota_patio if voo.nota_patio is not none else "-" }}</td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a href="{{ url_for('editar_voo', id=voo.id) }}" class="btn btn-warning btn-sm">
+                                        <i class="bi bi-pencil"></i> Editar
+                                    </a>
+                                    <form action="{{ url_for('excluir_voo', id=voo.id) }}" method="POST">
+                                        <button type="submit" class="btn btn-danger btn-sm">
+                                            <i class="bi bi-trash"></i> Excluir
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-    <button type="submit" class="btn btn-primary">Filtrar</button>
-    <a href="{{ url_for('lista_voos') }}" class="btn btn-secondary">Limpar Filtro</a>
-</form>
 
-<!-- Tabela de Informações Gerais -->
-<h2>Informações Gerais</h2>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Número do Voo</th>
-            <th>Companhia Aérea</th>
-            <th>Modelo de Aeronave</th>
-            <th>Tipo de Voo</th>
-            <th>Tipo de Aeronave</th>
-            <th>Quantidade de Voos</th>
-            <th>Horário do Voo</th>
-            <th>Quantidade de Passageiros</th>
-            <th>Ações</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for voo in voos.items %}
-        <tr>
-            <td>{{ voo.numero_voo }}</td>
-            <td>{{ voo.companhia.nome }}</td>
-            <td>{{ voo.modelo_aeronave.nome }}</td>
-            <td>{{ voo.tipo_voo }}</td>
-            <td>{{ voo.tipo_aeronave }}</td>
-            <td>{{ voo.qtd_voos }}</td>
-            <td>{{ voo.horario_voo }}</td>
-            <td>{{ voo.qtd_passageiros }}</td>
-            <td>
-                <a href="{{ url_for('editar_voo', id=voo.id) }}" class="btn btn-warning">Editar</a>
-                <form action="{{ url_for('excluir_voo', id=voo.id) }}" method="POST" style="display:inline;">
-                    <button type="submit" class="btn btn-danger">Excluir</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-<!-- Navegação de Paginação para Informações Gerais -->
-<nav aria-label="Navegação de páginas">
-    <ul class="pagination">
-        {% if voos.has_prev %}
-            <li class="page-item">
-                <a class="page-link" href="{{ url_for('lista_voos', pagina=voos.prev_num, companhia=companhia_filtro) }}">Anterior</a>
-            </li>
-        {% else %}
-            <li class="page-item disabled">
-                <span class="page-link">Anterior</span>
-            </li>
-        {% endif %}
-
-        {% for num in voos.iter_pages() %}
-            {% if num %}
-                <li class="page-item {% if num == voos.page %}active{% endif %}">
-                    <a class="page-link" href="{{ url_for('lista_voos', pagina=num, companhia=companhia_filtro) }}">{{ num }}</a>
+    <!-- Paginação -->
+    <nav aria-label="Navegação de páginas">
+        <ul class="pagination justify-content-center">
+            {% if voos.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('lista_voos', pagina=voos.prev_num, companhia=companhia_filtro) }}">Anterior</a>
                 </li>
             {% else %}
                 <li class="page-item disabled">
-                    <span class="page-link">...</span>
+                    <span class="page-link">Anterior</span>
                 </li>
             {% endif %}
-        {% endfor %}
 
-        {% if voos.has_next %}
-            <li class="page-item">
-                <a class="page-link" href="{{ url_for('lista_voos', pagina=voos.next_num, companhia=companhia_filtro) }}">Próxima</a>
-            </li>
-        {% else %}
-            <li class="page-item disabled">
-                <span class="page-link">Próxima</span>
-            </li>
-        {% endif %}
-    </ul>
-</nav>
+            {% for num in voos.iter_pages() %}
+                {% if num %}
+                    <li class="page-item {% if num == voos.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('lista_voos', pagina=num, companhia=companhia_filtro) }}">{{ num }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                {% endif %}
+            {% endfor %}
 
-<!-- Tabela de Notas -->
-<h2>Notas</h2>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Número do Voo</th>
-            <th>Nota Objetivo</th>
-            <th>Nota Pontualidade</th>
-            <th>Nota Serviços</th>
-            <th>Nota Pátio</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for voo in voos.items %}
-        <tr>
-            <td>{{ voo.numero_voo }}</td>
-            <td>{{ voo.nota_obj }}</td>
-            <td>{{ voo.nota_pontualidade }}</td>
-            <td>{{ voo.nota_servicos }}</td>
-            <td>{{ voo.nota_patio }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-<!-- Navegação de Paginação para Notas -->
-<nav aria-label="Navegação de páginas">
-    <ul class="pagination">
-        {% if voos.has_prev %}
-            <li class="page-item">
-                <a class="page-link" href="{{ url_for('lista_voos', pagina=voos.prev_num, companhia=companhia_filtro) }}">Anterior</a>
-            </li>
-        {% else %}
-            <li class="page-item disabled">
-                <span class="page-link">Anterior</span>
-            </li>
-        {% endif %}
-
-        {% for num in voos.iter_pages() %}
-            {% if num %}
-                <li class="page-item {% if num == voos.page %}active{% endif %}">
-                    <a class="page-link" href="{{ url_for('lista_voos', pagina=num, companhia=companhia_filtro) }}">{{ num }}</a>
+            {% if voos.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('lista_voos', pagina=voos.next_num, companhia=companhia_filtro) }}">Próxima</a>
                 </li>
             {% else %}
                 <li class="page-item disabled">
-                    <span class="page-link">...</span>
+                    <span class="page-link">Próxima</span>
                 </li>
             {% endif %}
-        {% endfor %}
+        </ul>
+    </nav>
 
-        {% if voos.has_next %}
-            <li class="page-item">
-                <a class="page-link" href="{{ url_for('lista_voos', pagina=voos.next_num, companhia=companhia_filtro) }}">Próxima</a>
-            </li>
-        {% else %}
-            <li class="page-item disabled">
-                <span class="page-link">Próxima</span>
-            </li>
-        {% endif %}
-    </ul>
-</nav>
+    <!-- Botão para Adicionar Novo Voo -->
+    <div class="text-center mt-4">
+        <a href="{{ url_for('adicionar_voo') }}" class="btn btn-success">
+            <i class="bi bi-plus"></i> Adicionar Novo Voo
+        </a>
+    </div>
+</div>
 
-<a href="{{ url_for('adicionar_voo') }}" class="btn btn-primary">Adicionar Voo</a>
+<!-- Ícones do Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" rel="stylesheet">
 {% endblock %}
