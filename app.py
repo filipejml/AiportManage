@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, url_for
+from flask import Flask, render_template, request, jsonify, url_for, redirect
 from models import db, Companhia, ModeloAeronave, Voo, Companhia, ModeloAeronave
 from config import Config
 from datetime import datetime
@@ -233,25 +233,39 @@ def dashboard():
 @app.route('/adicionar_voo', methods=['GET', 'POST'])
 def adicionar_voo():
     if request.method == 'POST':
-        # Captura os dados do formulário
+        # Processar o formulário e adicionar o voo
+        data = request.form
+
+        # Converte campos vazios para None (NULL no banco de dados)
+        nota_obj = int(data['nota_obj']) if data['nota_obj'] else None
+        nota_pontualidade = int(data['nota_pontualidade']) if data['nota_pontualidade'] else None
+        nota_servicos = int(data['nota_servicos']) if data['nota_servicos'] else None
+        nota_patio = int(data['nota_patio']) if data['nota_patio'] else None
+
+        # Cria um novo voo com os dados do formulário
         novo_voo = Voo(
-            numero_voo=request.form['numero_voo'],
-            companhia_id=request.form['companhia'],
-            modelo_aeronave_id=request.form['modelo_aeronave'],
-            tipo_voo=request.form['tipo_voo'],
-            tipo_aeronave=request.form['tipo_aeronave'],
-            qtd_voos=request.form['qtd_voos'],
-            horario_voo=request.form['horario_voo'],
-            qtd_passageiros=request.form['qtd_passageiros'],
-            nota_obj=request.form.get('nota_obj'),
-            nota_pontualidade=request.form.get('nota_pontualidade'),
-            nota_servicos=request.form.get('nota_servicos'),
-            nota_patio=request.form.get('nota_patio')
+            numero_voo=data['numero_voo'],
+            companhia_id=data['companhia'],
+            modelo_aeronave_id=data['modelo_aeronave'],
+            tipo_voo=data['tipo_voo'],
+            tipo_aeronave=data['tipo_aeronave'],
+            qtd_voos=int(data['qtd_voos']),
+            horario_voo=data['horario_voo'],
+            qtd_passageiros=int(data['qtd_passageiros']),
+            nota_obj=nota_obj,
+            nota_pontualidade=nota_pontualidade,
+            nota_servicos=nota_servicos,
+            nota_patio=nota_patio,
+            data_insercao=datetime.utcnow()  # Data de inserção automática
         )
+
+        # Salva o novo voo no banco de dados
         db.session.add(novo_voo)
         db.session.commit()
+
         return redirect(url_for('lista_voos'))
 
+    # Se for GET, exibe o formulário
     companhias = Companhia.query.all()
     return render_template('adicionar_voo.html', companhias=companhias)
 
@@ -292,6 +306,11 @@ def excluir_voo(id):
 def lista_companhias():
     companhias = Companhia.query.all()
     return render_template('companhias.html', companhias=companhias)
+
+@app.route('/verificar_numero_voo/<numero_voo>')
+def verificar_numero_voo(numero_voo):
+    voo = Voo.query.filter_by(numero_voo=numero_voo).first()
+    return jsonify(existe=voo is not None)
 
 @app.route('/companhia/<int:id>')
 def detalhes_companhia(id):

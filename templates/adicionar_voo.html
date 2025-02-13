@@ -3,7 +3,19 @@
 {% block content %}
 <div class="container">
     <h1 class="my-4">Adicionar Voo</h1>
-    <form method="POST" action="{{ url_for('adicionar_voo') }}">
+
+    <!-- Exibir mensagens de erro -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('adicionar_voo') }}" onsubmit="return validarNumeroVoo()">
         <!-- Seção 1: Informações Básicas do Voo -->
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
@@ -15,6 +27,7 @@
                         <div class="form-group">
                             <label for="numero_voo">Número do Voo</label>
                             <input type="text" class="form-control" id="numero_voo" name="numero_voo" required>
+                            <small id="numero_voo_erro" class="text-danger" style="display: none;">Este número de voo já está registrado.</small>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -201,5 +214,20 @@
         const capacidade = await response.json();
         qtdPassageirosInput.value = capacidade;
     });
+
+    // Função para validar o número do voo
+    async function validarNumeroVoo() {
+        const numeroVoo = document.getElementById('numero_voo').value;
+        const resposta = await fetch(`/verificar_numero_voo/${numeroVoo}`);
+        const existe = await resposta.json();
+
+        if (existe) {
+            document.getElementById('numero_voo_erro').style.display = 'block';
+            return false; // Impede o envio do formulário
+        } else {
+            document.getElementById('numero_voo_erro').style.display = 'none';
+            return true; // Permite o envio do formulário
+        }
+    }
 </script>
 {% endblock %}

@@ -39,7 +39,7 @@
     </div>
 </div>
 
-<!-- Gráficos -->
+<!-- Gráficos Gerais -->
 <div class="row mb-4">
     <div class="col-md-6">
         <div class="card">
@@ -133,63 +133,153 @@
                 <h3 class="card-title">{{ companhia_selecionada.nome }}</h3>
 
                 <!-- Total de Voos e Passageiros -->
-                <div class="row">
+                <div class="row mb-4">
                     <div class="col-md-6">
-                        <h5>Total de Voos: {{ companhia_selecionada.total_voos }}</h5>
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total de Voos</h5>
+                                <p class="card-text">{{ companhia_selecionada.total_voos }}</p>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-md-6">
-                        <h5>Total de Passageiros: {{ companhia_selecionada.total_passageiros }}</h5>
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total de Passageiros</h5>
+                                <p class="card-text">{{ companhia_selecionada.total_passageiros }}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Médias das Notas -->
-                <h5>Médias das Notas</h5>
-                <ul>
-                    <li>Nota Objetivo: {{ "%.2f"|format(companhia_selecionada.media_obj) }}</li>
-                    <li>Nota Pontualidade: {{ "%.2f"|format(companhia_selecionada.media_pontualidade) }}</li>
-                    <li>Nota Serviços: {{ "%.2f"|format(companhia_selecionada.media_servicos) }}</li>
-                    <li>Nota Pátio: {{ "%.2f"|format(companhia_selecionada.media_patio) }}</li>
-                </ul>
-
-                <!-- Modelos de Aeronaves -->
-                <h5>Modelos de Aeronaves</h5>
-                <ul>
-                    {% for modelo in companhia_selecionada.modelos %}
-                        <li>{{ modelo.nome }} (Capacidade: {{ modelo.capacidade }} passageiros)</li>
-                    {% endfor %}
-                </ul>
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Médias das Notas</h5>
+                                <ul>
+                                    <li>Nota Objetivo: {{ "%.2f"|format(companhia_selecionada.media_obj) }}</li>
+                                    <li>Nota Pontualidade: {{ "%.2f"|format(companhia_selecionada.media_pontualidade) }}</li>
+                                    <li>Nota Serviços: {{ "%.2f"|format(companhia_selecionada.media_servicos) }}</li>
+                                    <li>Nota Pátio: {{ "%.2f"|format(companhia_selecionada.media_patio) }}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Modelos de Aeronaves</h5>
+                                <ul>
+                                    {% for modelo in companhia_selecionada.modelos %}
+                                        <li>{{ modelo.nome }} (Capacidade: {{ modelo.capacidade }} passageiros)</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Total de Voos por Modelo de Aeronave -->
-                <h5>Total de Voos por Modelo de Aeronave</h5>
-                <ul>
-                    {% for modelo, total in zip(companhia_selecionada.modelos_aeronave, companhia_selecionada.total_voos_por_modelo) %}
-                        <li>{{ modelo }}: {{ total }} voos</li>
-                    {% endfor %}
-                </ul>
-
-                <!-- Total de Passageiros por Modelo de Aeronave -->
-                <h5>Total de Passageiros por Modelo de Aeronave</h5>
-                <ul>
-                    {% for modelo, total in zip(companhia_selecionada.modelos_aeronave, companhia_selecionada.passageiros_por_modelo) %}
-                        <li>{{ modelo }}: {{ total }} passageiros</li>
-                    {% endfor %}
-                </ul>
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total de Voos por Modelo de Aeronave</h5>
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Modelo</th>
+                                            <th>Total de Voos</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for i in range(companhia_selecionada.modelos_aeronave|length) %}
+                                            <tr>
+                                                <td>{{ companhia_selecionada.modelos_aeronave[i] }}</td>
+                                                <td>{{ companhia_selecionada.total_voos_por_modelo[i] }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total de Passageiros por Modelo de Aeronave</h5>
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Modelo</th>
+                                            <th>Total de Passageiros</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for i in range(companhia_selecionada.modelos_aeronave|length) %}
+                                            <tr>
+                                                <td>{{ companhia_selecionada.modelos_aeronave[i] }}</td>
+                                                <td>{{ companhia_selecionada.passageiros_por_modelo[i] }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Total de Voos por Horário -->
-                <h5>Total de Voos por Horário</h5>
-                <ul>
-                    {% for horario, total in zip(companhia_selecionada.horarios_voo, companhia_selecionada.total_voos_por_horario) %}
-                        <li>{{ horario }}: {{ total }} voos</li>
-                    {% endfor %}
-                </ul>
-
-                <!-- Total de Passageiros por Horário -->
-                <h5>Total de Passageiros por Horário</h5>
-                <ul>
-                    {% for horario, total in zip(companhia_selecionada.horarios_voo, companhia_selecionada.passageiros_por_horario) %}
-                        <li>{{ horario }}: {{ total }} passageiros</li>
-                    {% endfor %}
-                </ul>
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total de Voos por Horário</h5>
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Horário</th>
+                                            <th>Total de Voos</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for i in range(companhia_selecionada.horarios_voo|length) %}
+                                            <tr>
+                                                <td>{{ companhia_selecionada.horarios_voo[i] }}</td>
+                                                <td>{{ companhia_selecionada.total_voos_por_horario[i] }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total de Passageiros por Horário</h5>
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Horário</th>
+                                            <th>Total de Passageiros</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for i in range(companhia_selecionada.horarios_voo|length) %}
+                                            <tr>
+                                                <td>{{ companhia_selecionada.horarios_voo[i] }}</td>
+                                                <td>{{ companhia_selecionada.passageiros_por_horario[i] }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
