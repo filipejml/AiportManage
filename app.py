@@ -102,15 +102,13 @@ def companhias():
     return render_template('companhias.html', companhias=companhias)
 
 # Rota para o dashboard
-@app.route('/dashboard')
+@app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
-    # Total de voos registrados (soma da quantidade de voos)
+    # Dados gerais (independentes da companhia selecionada)
     total_voos = db.session.query(db.func.sum(Voo.qtd_voos)).scalar() or 0
-
-    # Quantidade total de passageiros
     total_passageiros = db.session.query(db.func.sum(Voo.qtd_passageiros)).scalar() or 0
 
-    # Médias das notas
+    # Médias das notas (geral)
     voos = Voo.query.all()
     total_voos_com_notas = len([voo for voo in voos if voo.nota_obj is not None])
 
@@ -131,17 +129,12 @@ def dashboard():
     medias_notas = [media_obj, media_pontualidade, media_servicos, media_patio]
     labels_notas = ["Objetivo", "Pontualidade", "Serviços", "Pátio"]
 
-    # Adiciona totais como atributos dinâmicos aos objetos Companhia
-    for companhia in companhias:
-        companhia.total_voos = sum(voo.qtd_voos for voo in companhia.voos)
-        companhia.total_passageiros = sum(voo.qtd_passageiros for voo in companhia.voos)
-
-    # Total de voos por tipo de aeronave
+    # Total de voos por tipo de aeronave (geral)
     total_voos_pc = db.session.query(db.func.sum(Voo.qtd_voos)).filter(Voo.tipo_aeronave == 'PC').scalar() or 0
     total_voos_mc = db.session.query(db.func.sum(Voo.qtd_voos)).filter(Voo.tipo_aeronave == 'MC').scalar() or 0
     total_voos_lc = db.session.query(db.func.sum(Voo.qtd_voos)).filter(Voo.tipo_aeronave == 'LC').scalar() or 0
 
-    # Total de voos por modelo de aeronave
+    # Total de voos por modelo de aeronave (geral)
     voos_por_modelo = db.session.query(
         ModeloAeronave.nome,
         db.func.sum(Voo.qtd_voos).label('total_voos')
@@ -149,11 +142,73 @@ def dashboard():
      .group_by(ModeloAeronave.nome) \
      .all()
 
-    # Extrai os nomes dos modelos e os totais de voos
     modelos_aeronave = [resultado.nome for resultado in voos_por_modelo]
     total_voos_por_modelo = [resultado.total_voos for resultado in voos_por_modelo]
 
-    # Passa os dados para o template
+    # Dados específicos da companhia selecionada
+    companhia_selecionada = None
+    if request.method == 'POST':
+        companhia_id = request.form.get('companhia')
+        if companhia_id:
+            companhia_selecionada = Companhia.query.get(companhia_id)
+
+            # Total de voos e passageiros da companhia selecionada
+            companhia_selecionada.total_voos = sum(voo.qtd_voos for voo in companhia_selecionada.voos)
+            companhia_selecionada.total_passageiros = sum(voo.qtd_passageiros for voo in companhia_selecionada.voos)
+
+            # Médias das notas da companhia selecionada
+            voos_companhia = companhia_selecionada.voos
+            total_voos_companhia = len(voos_companhia)
+
+            companhia_selecionada.media_obj = sum(voo.nota_obj for voo in voos_companhia if voo.nota_obj is not None) / total_voos_companhia if total_voos_companhia > 0 else 0
+            companhia_selecionada.media_pontualidade = sum(voo.nota_pontualidade for voo in voos_companhia if voo.nota_pontualidade is not None) / total_voos_companhia if total_voos_companhia > 0 else 0
+            companhia_selecionada.media_servicos = sum(voo.nota_servicos for voo in voos_companhia if voo.nota_servicos is not None) / total_voos_companhia if total_voos_companhia > 0 else 0
+            companhia_selecionada.media_patio = sum(voo.nota_patio for voo in voos_companhia if voo.nota_patio is not None) / total_voos_companhia if total_voos_companhia > 0 else 0
+
+            # Total de voos por modelo de aeronave da companhia selecionada
+            voos_por_modelo_companhia = db.session.query(
+                ModeloAeronave.nome,
+                db.func.sum(Voo.qtd_voos).label('total_voos')
+            ).join(Voo, Voo.modelo_aeronave_id == ModeloAeronave.id) \
+             .filter(Voo.companhia_id == companhia_id) \
+             .group_by(ModeloAeronave.nome) \
+             .all()
+
+            companhia_selecionada.modelos_aeronave = [resultado.nome for resultado in voos_por_modelo_companhia]
+            companhia_selecionada.total_voos_por_modelo = [resultado.total_voos for resultado in voos_por_modelo_companhia]
+
+            # Total de passageiros por modelo de aeronave da companhia selecionada
+            passageiros_por_modelo_companhia = db.session.query(
+                ModeloAeronave.nome,
+                db.func.sum(Voo.qtd_passageiros).label('total_passageiros')
+            ).join(Voo, Voo.modelo_aeronave_id == ModeloAeronave.id) \
+             .filter(Voo.companhia_id == companhia_id) \
+             .group_by(ModeloAeronave.nome) \
+             .all()
+
+            companhia_selecionada.passageiros_por_modelo = [resultado.total_passageiros for resultado in passageiros_por_modelo_companhia]
+
+            # Total de voos por horário da companhia selecionada
+            voos_por_horario_companhia = db.session.query(
+                Voo.horario_voo,
+                db.func.sum(Voo.qtd_voos).label('total_voos')
+            ).filter(Voo.companhia_id == companhia_id) \
+             .group_by(Voo.horario_voo) \
+             .all()
+
+            companhia_selecionada.horarios_voo = [resultado.horario_voo for resultado in voos_por_horario_companhia]
+            companhia_selecionada.total_voos_por_horario = [resultado.total_voos for resultado in voos_por_horario_companhia]
+
+            # Total de passageiros por horário da companhia selecionada
+            passageiros_por_horario_companhia = db.session.query(
+                Voo.horario_voo,
+                db.func.sum(Voo.qtd_passageiros).label('total_passageiros')
+            ).filter(Voo.companhia_id == companhia_id) \
+             .group_by(Voo.horario_voo) \
+             .all()
+
+            companhia_selecionada.passageiros_por_horario = [resultado.total_passageiros for resultado in passageiros_por_horario_companhia]
+
     return render_template('dashboard.html', 
                            total_voos=total_voos, 
                            total_passageiros=total_passageiros, 
@@ -170,9 +225,11 @@ def dashboard():
                            total_voos_mc=total_voos_mc,
                            total_voos_lc=total_voos_lc,
                            modelos_aeronave=modelos_aeronave,
-                           total_voos_por_modelo=total_voos_por_modelo)
+                           total_voos_por_modelo=total_voos_por_modelo,
+                           companhia_selecionada=companhia_selecionada,
+                           zip=zip)
 
-    
+
 @app.route('/adicionar_voo', methods=['GET', 'POST'])
 def adicionar_voo():
     if request.method == 'POST':
