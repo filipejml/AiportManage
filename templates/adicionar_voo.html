@@ -15,7 +15,7 @@
         {% endif %}
     {% endwith %}
 
-    <form method="POST" action="{{ url_for('adicionar_voo') }}" onsubmit="return validarNumeroVoo()">
+    <form method="POST" action="{{ url_for('adicionar_voo') }}">
         <!-- Seção 1: Informações Básicas do Voo -->
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
@@ -215,19 +215,28 @@
         qtdPassageirosInput.value = capacidade;
     });
 
-    // Função para validar o número do voo
-    async function validarNumeroVoo() {
-        const numeroVoo = document.getElementById('numero_voo').value;
-        const resposta = await fetch(`/verificar_numero_voo/${numeroVoo}`);
-        const existe = await resposta.json();
+    // Função para verificar o número do voo em tempo real
+    const numeroVooInput = document.getElementById('numero_voo');
+    const numeroVooErro = document.getElementById('numero_voo_erro');
 
-        if (existe) {
-            document.getElementById('numero_voo_erro').style.display = 'block';
-            return false; // Impede o envio do formulário
+    numeroVooInput.addEventListener('input', async () => {
+        const numeroVoo = numeroVooInput.value;
+
+        if (numeroVoo.length > 0) {
+            const resposta = await fetch(`/verificar_numero_voo/${numeroVoo}`);
+            const existe = await resposta.json();
+
+            if (existe) {
+                numeroVooInput.classList.add('is-invalid'); // Adiciona borda vermelha
+                numeroVooErro.style.display = 'block'; // Exibe a mensagem de erro
+            } else {
+                numeroVooInput.classList.remove('is-invalid'); // Remove borda vermelha
+                numeroVooErro.style.display = 'none'; // Oculta a mensagem de erro
+            }
         } else {
-            document.getElementById('numero_voo_erro').style.display = 'none';
-            return true; // Permite o envio do formulário
+            numeroVooInput.classList.remove('is-invalid'); // Remove borda vermelha
+            numeroVooErro.style.display = 'none'; // Oculta a mensagem de erro
         }
-    }
+    });
 </script>
 {% endblock %}
