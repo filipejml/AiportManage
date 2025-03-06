@@ -233,6 +233,14 @@ def dashboard():
 @app.route('/adicionar_voo', methods=['GET', 'POST'])
 def adicionar_voo():
     if request.method == 'POST':
+        
+        numero_voo = request.form['numero_voo']
+
+        # Verifica se o número do voo já existe
+        if Voo.query.filter_by(numero_voo=numero_voo).first():
+            flash('Este número de voo já está registrado.', 'error')
+            return redirect(url_for('adicionar_voo'))
+        
         # Processar o formulário e adicionar o voo
         data = request.form
 
