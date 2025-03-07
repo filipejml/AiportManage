@@ -48,3 +48,14 @@ O **Airport Manager** é uma aplicação web desenvolvida para gerenciar voos, c
    ```bash
    git clone https://github.com/seu-usuario/airport-manager.git
    cd airport-manager
+
+2. **Crie um ambiente virtual (opcional, mas recomendado):**
+
+  ```bash
+  python -m venv venv
+  source venv/bin/activate  # No Windows: venv\Scripts\activate
+
+3. **Instale as dependências:**
+
+  ```bash
+  pip install -r requirements.txt
