@@ -55,7 +55,4 @@ O **Airport Manager** é uma aplicação web desenvolvida para gerenciar voos, c
   python -m venv venv
   source venv/bin/activate  # No Windows: venv\Scripts\activate
 
-3. **Instale as dependências:**
 
-  ```bash
-  pip install -r requirements.txt
